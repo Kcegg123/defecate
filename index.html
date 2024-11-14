@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多人計數器</title>
+    <style>
+        /* 設置容器樣式 */
+        .counter-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            max-width: 90%;
+            margin: auto;
+        }
+        .counter {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            flex-wrap: wrap; /* 將元素換行 */
+            justify-content: center;
+        }
+        .counter button {
+            margin: 5px;
+            padding: 10px;
+            font-size: 18px;
+        }
+        .counter span {
+            font-size: 18px;
+            width: 40px;
+            text-align: center;
+            margin: 5px;
+        }
+        .name-input {
+            margin-right: 10px;
+            padding: 8px;
+            font-size: 16px;
+            flex: 1 1 100px; /* 使輸入框具有彈性 */
+        }
+
+        /* 手機裝置的樣式 */
+        @media (max-width: 600px) {
+            .counter-container {
+                padding: 5px;
+            }
+            .counter button {
+                padding: 8px;
+                font-size: 16px;
+            }
+            .counter span {
+                font-size: 16px;
+                width: 35px;
+            }
+            .name-input {
+                padding: 6px;
+                font-size: 14px;
+                margin-bottom: 5px; /* 增加上下間距 */
+                width: 100%; /* 在小螢幕上讓輸入框佔據整行 */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="counter-container" id="counter-container">
+    <!-- 計數器將由 JavaScript 動態生成 -->
+</div>
+
+<script>
+    const numCounters = 10;
+    let counters = JSON.parse(localStorage.getItem('counters')) || Array(numCounters).fill(0);
+    let names = JSON.parse(localStorage.getItem('names')) || Array(numCounters).fill('');
+
+    function createCounters() {
+        const container = document.getElementById('counter-container');
+        container.innerHTML = ''; // 清空容器
+
+        counters.forEach((count, index) => {
+            const counterDiv = document.createElement('div');
+            counterDiv.className = 'counter';
+
+            // 名稱輸入欄位
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.placeholder = `使用者 ${index + 1}`;
+            nameInput.className = 'name-input';
+            nameInput.value = names[index];
+            nameInput.onchange = () => updateName(index, nameInput.value);
+            counterDiv.appendChild(nameInput);
+
+            // 減號按鈕
+            const minusButton = document.createElement('button');
+            minusButton.innerText = '-';
+            minusButton.onclick = () => updateCounter(index, -1);
+            counterDiv.appendChild(minusButton);
+
+            // 顯示計數的元素
+            const countDisplay = document.createElement('span');
+            countDisplay.innerText = count;
+            countDisplay.id = `counter-${index}`;
+            counterDiv.appendChild(countDisplay);
+
+            // 加號按鈕
+            const plusButton = document.createElement('button');
+            plusButton.innerText = '+';
+            plusButton.onclick = () => updateCounter(index, 1);
+            counterDiv.appendChild(plusButton);
+
+            container.appendChild(counterDiv);
+        });
+    }
+
+    function updateCounter(index, delta) {
+        counters[index] += delta;
+        document.getElementById(`counter-${index}`).innerText = counters[index];
+        localStorage.setItem('counters', JSON.stringify(counters));
+    }
+
+    function updateName(index, name) {
+        names[index] = name;
+        localStorage.setItem('names', JSON.stringify(names));
+    }
+
+    // 初始化計數器
+    createCounters();
+</script>
+
+</body>
+</html>
